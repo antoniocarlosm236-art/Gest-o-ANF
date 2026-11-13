@@ -1,0 +1,22 @@
+{
+  "name": "Gestão de Serviços",
+  "short_name": "GestãoServiços",
+  "description": "Sistema de Gestão de Serviços, Horas e Custos",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f141b",
+  "theme_color": "#1f4e8c",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
