@@ -160,7 +160,7 @@ tbl=(h,r,e)=>r.length?`<div class=tw><table><tr>${h.map((x,i)=>`<th${i?' class=n
 fld=(l,id,v,t='text',w)=>`<label${w?' class=w':''}>${l}<input id=${id} type=${t} value="${esc(v)}"${t==='number'?' step=0.01 min=0 inputmode=decimal':''}></label>`,
 sel=(l,id,o,v,w)=>`<label${w?' class=w':''}>${l}<select id=${id}>${o.map(x=>`<option${x===v?' selected':''}>${x}`).join('')}</select></label>`;
 
-function toast(m){const t=$('#ts');t.textContent=m;t.style.display='block';clearTimeout(toast.i);toast.i=setTimeout(()=>t.style.display='none',3500)}
+function toast(m){const t=$('#ts');if(!t)return;t.textContent=m;t.style.display='block';clearTimeout(toast.i);toast.i=setTimeout(()=>t.style.display='none',3500)}
 
 async function syncPost(sheet, action, data) {
   const res = await fetch(API_URL, {
@@ -183,6 +183,7 @@ async function put(sheet, id, data) {
     if(idx >= 0) H.c[idx] = data; else H.c.push(data);
   }
   saveCache();
+  render();
   const targetSheet = sheet === 's' ? 'Servicos' : sheet === 'c' ? 'Custos' : sheet === 'h' ? 'Horas' : 'Empresas';
   toast('Salvando na planilha...');
   try {
@@ -190,7 +191,7 @@ async function put(sheet, id, data) {
     if(r && r.status === 'success') toast('Sincronizado com sucesso!');
     else toast('Salvo localmente (verifique a planilha).');
   } catch(e) {
-    toast('Erro ao enviar para a planilha.');
+    toast('Salvo localmente (erro de rede com a planilha).');
   }
 }
 
@@ -230,4 +231,169 @@ const c=hco(hg('re'))||H.c[0];
 if(!c)return `<div class='cd em'>Cadastre uma empresa para ver a relação de horas.</div>`;
 const a=hg('de',hoje().slice(0,8)+'01'),b=hg('ate',hoje()),L=H.e.map(e=>({...e,d:normD(e.d),i:normT(e.i),o:normT(e.o)})).filter(e=>String(e.c)===String(c.id)&&(!a||e.d>=a)&&(!b||e.d<=b)).sort((x,y)=>(x.d+x.i).localeCompare(y.d+y.i)),T={m:0,h:0,l:0,t:0};
 L.forEach(e=>{const x=hcalc(e);T.m+=x.m;T.h+=x.h;T.l+=x.l;T.t+=x.t});
-HT=L.length?[(
+HT=L.length?[(c.ct?'Olá, '+c.ct+'!':''),'*ANF instalações elétricas*','Relação de horas – '+c.n,'Período: '+(a?fd(a):'—')+' a '+(b?fd(b):'—'),'',...L.map(e=>{const x=hcalc(e);return hdm(e.d)+': '+e.i+' às '+e.o+' ('+hh(x.m)+') = '+R(x.h)+(x.l?' + logística '+hkm(e.km)+' km = '+R(x.l):'')}),'','Horas trabalhadas: '+hh(T.m)+' ('+R(T.h)+')','Logística: '+R(T.l),'*Total: '+R(T.t)+'*'].filter((v,i)=>i||v).join(NL):'';
+let z=(c.z||'').replace(/[^0-9]/g,'').replace(/^0+/,'');if(z&&z.length<=11)z='55'+z;
+HW='https://wa.me/'+z+'?text='+encodeURIComponent(HT).replace(/'/g,'%27');
+return `<div class=cd><div class=f><label class=w>Empresa<select id=h_re>${hopt(c.id)}</select></label>`+fld('De','h_de',a,'date')+fld('Até','h_ate',b,'date')+`</div></div><div class=cd><h3>Relação de horas</h3>`+tbl(['Data','Horário','Horas','Valor das horas','Logística','Total',''],L.map(e=>{const x=hcalc(e);return tr(fd(e.d),e.i+' às '+e.o,hh(x.m),R(x.h),x.l?R(x.l)+`<small>${hkm(e.km)} km</small>`:'—',`<b>${R(x.t)}</b>`,`<button class=g data-a=ed data-i="${esc(e.id)}">Editar</button> <button class=g data-a=del data-i="${esc(e.id)}">Apagar</button>`)}),'Nenhum lançamento neste período.')+(L.length?`<div class=sm style='margin-top:12px'>${hrows(T)}</div><div class=tb style='margin-top:12px'><a class=wz target=_blank rel=noopener href='${HW}'>Enviar no WhatsApp</a><button class=g data-a=copy>Copiar texto</button></div><pre class=rt>${esc(HT)}</pre>`:'')+`</div>`}
+
+function hemp(){
+const e=!!hcid;
+return `<div class=cd><h3>${e?'Editar empresa':'Nova empresa'}</h3><div class=f>`+fld('Empresa','h_n',hg('n',''),'text',1)+fld('Nome do contato','h_ct',hg('ct',''))+fld('WhatsApp (com DDD)','h_z',hg('z',''),'tel')+fld('Valor da hora (R$)','h_cvh',hg('cvh',''),'number')+fld('Valor do km (R$)','h_cvk',hg('cvk',''),'number')+`</div><div class=ac><span style='flex:1'></span>${e?`<button class=g data-a=ccancel>Cancelar edição</button>`:''}<button class=bt data-a=csave>${e?'Salvar alterações':'Salvar empresa'}</button></div></div><div class=cd><h3>Empresas cadastradas</h3>`+tbl(['Empresa','WhatsApp','Hora','Km',''],H.c.map(c=>tr(esc(c.n)+(c.ct?`<small>${esc(c.ct)}</small>`:''),esc(c.z||'—'),R(c.vh),R(c.vk),`<button class=g data-a=ced data-i="${esc(c.id)}">Editar</button> <button class=g data-a=cdel data-i="${esc(c.id)}">Apagar</button>`)),'Nenhuma empresa cadastrada ainda.')+`</div>`}
+
+const hrv=()=>`<div class=sn>${[['lan','Lançar'],['rel','Relação'],['emp','Empresas']].map(([k,l])=>`<button class='g${hv===k?' on':''}' data-a=nav data-i=${k}>${l}</button>`).join('')}</div>`+(hv==='lan'?hlan():hv==='rel'?hrel():hemp());
+
+async function hact(b){const a=b.dataset.a,id=b.dataset.i;
+if(a==='nav'){hv=id;render();return}
+if(a==='copy'){try{await navigator.clipboard.writeText(HT);toast('Texto copiado.')}catch(e){}return}
+if(a==='cancel'){hid=null;hclr('d','vh','vk','i','o','km');render();return}
+if(a==='ccancel'){hcid=null;hclr('n','ct','z','cvh','cvk');render();return}
+if(a==='ed'){const x=H.e.find(e=>String(e.id)===String(id));if(!x)return;hid=id;Object.assign(HF,{e:x.c,d:normD(x.d),vh:x.vh,i:normT(x.i),o:normT(x.o),km:x.km||'',vk:x.vk});hv='lan';render();scrollTo(0,0);return}
+if(a==='ced'){const c=hco(id);if(!c)return;hcid=id;Object.assign(HF,{n:c.n,ct:c.ct||'',z:c.z||'',cvh:c.vh||'',cvk:c.vk||''});render();scrollTo(0,0);return}
+if(a==='del'||a==='cdel'){if(!b.dataset.r){b.dataset.r=1;b.textContent='Confirmar?';setTimeout(()=>{b.dataset.r='';b.textContent='Apagar'},3000);return}
+if(a==='del') await rm('h', id); else { await rm('comp', id); H.e = H.e.filter(e=>String(e.c)!==String(id)); saveCache(); }
+render();return}
+if(a==='save'){const v=hform();if(!v.c)return toast('Cadastre uma empresa primeiro.');if(!v.i||!v.o)return toast('Preencha entrada e saída.');
+const id=hid||'h'+Date.now().toString(36);
+const entry = {id, c:v.c, d:v.d, vh:v.vh, i:v.i, o:v.o, km:v.km, vk:v.vk};
+await put('h', id, entry);
+hid=null; hclr('i','o','km','d'); render(); return}
+if(a==='csave'){const n=hg('n','').trim();if(!n)return toast('Informe o nome da empresa.');
+const id=hcid||'comp'+Date.now().toString(36);
+const comp = {id, n, ct:hg('ct','').trim(), z:hg('z','').trim(), vh:+hg('cvh','')||0, vk:+hg('cvk','')||0};
+await put('comp', id, comp);
+hcid=null; hclr('n','ct','z','cvh','cvk'); render(); return}
+}
+
+$('#mn').addEventListener('click',ev=>{const b=ev.target.closest('button[data-a]');if(b)hact(b)});
+$('#mn').addEventListener('input',ev=>{const t=ev.target,k=t.id&&t.id.indexOf('h_')===0?t.id.slice(2):'';if(!k)return;HF[k]=t.value;if(k==='e'){hclr('vh','vk');render()}else if(k==='re'||k==='de'||k==='ate')render();else if(hv==='lan'&&$('#h_sum'))$('#h_sum').innerHTML=hrows(hcalc(hform()))});
+
+async function init(){
+  render();
+  try {
+    toast('Sincronizando planilha...');
+    const res = await fetch(API_URL + '?t=' + Date.now());
+    const data = await res.json();
+    if(data.Servicos){ S.s={}; data.Servicos.forEach(x => { if(x.id) S.s[x.id] = x; }); }
+    if(data.Custos){ S.c={}; data.Custos.forEach(x => { if(x.id) S.c[x.id] = x; }); }
+    if(data.Horas) H.e = data.Horas.map(x => ({...x, d:normD(x.d), i:normT(x.i), o:normT(x.o), vh:+x.vh||0, km:+x.km||0, vk:+x.vk||0}));
+    if(data.Empresas) H.c = data.Empresas.map(x => ({...x, vh:+x.vh||0, vk:+x.vk||0}));
+    saveCache();
+    toast('Planilha sincronizada!');
+  } catch(e) {
+    toast('Exibindo dados locais (verifique a permissão da planilha/script).');
+  }
+  render();
+}
+
+function apply(){const c=S.cfg,r=document.documentElement.style;r.setProperty('--c1',c.c1);r.setProperty('--c2',c.c2);r.setProperty('--on1',on(c.c1));if($('#nm'))$('#nm').textContent=c.nome;document.title=c.nome;const l=$('#lg');if(l){l.hidden=!c.logo;if(c.logo)l.src=c.logo}}
+function render(){apply();
+ if($('#nv'))$('#nv').innerHTML=[['dash','Painel'],['srv','Serviços'],['cus','Custos'],['hor','Horas'],['cfg','Configurações']].map(([k,l])=>`<button class="${tab===k?'on':''}" onclick="tab='${k}';render()">${l}</button>`).join('');
+ const v={dash,srv:lsS,cus:lsC,hor:hrv,cfg}[tab]();
+ if($('#mn'))$('#mn').innerHTML=(tab==='cfg'||tab==='hor'?'':bar())+v;
+ if(tab==='dash')charts()}
+
+function bar(){
+ const m=[...new Set([...Object.values(S.s).map(x=>normD(x.data)),...Object.values(S.c).map(x=>normD(x.data)),...H.e.map(x=>normD(x.d))].map(d=>d?d.slice(0,7):'').concat(hoje().slice(0,7)))].filter(Boolean).sort().reverse(),
+ b=tab==='srv'?'<button class=bt onclick="openS()">Novo serviço</button>':tab==='cus'?'<button class=bt onclick="openC()">Novo custo</button>':'';
+ return '<div class=tb><select aria-label="Período" onchange="per=this.value;render()"><option value=all>Todo o período'+m.map(x=>`<option value=${x}${per===x?' selected':''}>${new Date(x+'-15').toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}`).join('')+'</select><span style="flex:1"></span><button class=g onclick="xl()">Exportar Excel</button>'+b+'</div>'}
+
+function calc(){
+ const sv=SV(),cu=CU(),ho=HO(),dn=sv.filter(x=>(x.situacao||x.st)===STS[2]),kmv=+S.cfg.kmv||0;
+ let hm=0,hv=0,hl=0,ht=0,hkmTotal=0;
+ ho.forEach(e=>{const x=hcalc(e);hm+=x.m;hv+=x.h;hl+=x.l;ht+=x.t;hkmTotal+=(+e.km||0);});
+ const fatSrv=sum(dn,'valor'),fat=r2(fatSrv+ht),
+ kmSrv=sum(dn,'km'),km=r2(kmSrv+hkmTotal),kmc=r2(kmSrv*kmv),
+ cus=r2(sum(cu,'valor')+kmc),luc=r2(fat-cus);
+ return{sv,cu,ho,dn,fatSrv,fat,hm,hv,hl,ht,km,kmc,cus,luc,mar:fat?luc/fat*100:0,nd:dn.length,nh:ho.length,tm:dn.length?fatSrv/dn.length:0,rec:sum(dn.filter(x=>!x.pago),'valor'),abe:sum(sv.filter(x=>(x.situacao||x.st)!==STS[2]),'valor'),lt:dn.filter(x=>!x.pago&&x.prazo&&x.prazo<hoje())}
+}
+
+function dash(){const k=calc(),
+ tip=TIP.map(t=>{
+   const a=k.dn.filter(x=>x.tipo===t);
+   let f=sum(a,'valor'),m=sum(a,'km'),q=a.length;
+   if(t===TIP[1]){f=r2(f+k.ht);m=r2(m+k.ho.reduce((s,e)=>s+(+e.km||0),0));q+=k.nh;}
+   return tr(t,q,R(f),R(q?f/q:0),N(m)+' km',m?R(f/m):'—');
+ }),
+ ori=ORI.map(o=>{const a=k.sv.filter(x=>x.origem===o||x.ori===o);if(!a.length)return'';const f=sum(a.filter(x=>(x.situacao||x.st)===STS[2]),'valor'),i=MAPA[o]?sum(k.cu.filter(x=>x.cat===MAPA[o]),'valor'):0;return tr(o,new Set(a.map(x=>(x.cliente||x.cli||'').trim().toLowerCase())).size,R(f),i?R(i):'—',i?N((f-i)/i*100)+'%':'—')}).filter(Boolean),g={};
+ k.dn.forEach(x=>{const n=(x.cliente||x.cli||'').trim(),y=g[n]=g[n]||{n,t:x.tipo,q:0,f:0,m:0};y.q++;y.f+=+x.valor||0;y.m+=+x.km||0});
+ k.ho.forEach(e=>{const c=hco(e.c),n=(c?c.n:'Empresa (Horas)').trim(),x=hcalc(e),y=g[n]=g[n]||{n,t:'Terceirizado (Horas)',q:0,f:0,m:0};y.q++;y.f=r2(y.f+x.t);y.m=r2(y.m+(+e.km||0))});
+ const top=Object.values(g).sort((a,b)=>b.f-a.f).slice(0,5).map(x=>tr(esc(x.n),x.t,x.q,N(x.m)+' km',R(x.f)));
+ const fp=FP.map(f=>{const a=k.dn.filter(x=>x.pago&&x.forma===f);return a.length?tr(f,a.length,R(sum(a,'valor'))):''}).filter(Boolean),
+ rc=k.dn.filter(x=>!x.pago).sort((a,b)=>(a.prazo||'9').localeCompare(b.prazo||'9')).slice(0,8).map(x=>tr(esc(x.cliente||x.cli),x.prazo?fd(x.prazo):'sem prazo',x.prazo&&x.prazo<hoje()?'<span class="b er">Atrasado</span>':'<span class="b wa">A receber</span>',R(x.valor)));
+ return `<div class=kp><div class="k hero"><span>Lucro líquido</span><b>${R(k.luc)}</b><small>Margem de ${N(k.mar)}% sobre o faturamento total</small></div>${kpi('Faturamento total',R(k.fat),k.nd+' serviços + '+k.nh+' lanç. horas')}${kpi('Horas lançadas',R(k.ht),hh(k.hm)+(k.hl?' + '+R(k.hl)+' log.':' em '+k.nh+' lanç.'))}${kpi('Custos',R(k.cus),k.kmc?'inclui '+R(k.kmc)+' de km':'lançados no período')}${kpi('A receber',R(k.rec),'serviços concluídos não pagos')}${kpi('Em atraso',R(sum(k.lt,'valor')),k.lt.length+' vencidos')}${kpi('Em aberto',R(k.abe),'orçamentos e agendados')}${kpi('Ticket médio',R(k.tm),'por serviço concluído')}${kpi('Km rodados',N(k.km)+' km','serviços + horas')}</div>
+ <div class=gr><div class=cd><h3>Últimos 6 meses</h3><div class=cv><canvas id=g1></canvas></div></div><div class=cd><h3>Custos por categoria</h3><div class=cv><canvas id=g2></canvas></div></div></div>
+ <div class=gr><div class=cd><h3>Contas a receber</h3>${tbl(['Cliente','Prazo','Situação','Valor'],rc,'Nada pendente.')}</div><div class=cd><h3>Formas de pagamento</h3>${tbl(['Forma','Pagamentos','Total'],fp,'Nenhum pagamento registrado.')}</div></div>
+ <div class=cd><h3>Terceirizado e Cliente final</h3>${tbl(['Tipo','Lançamentos','Faturamento','Ticket médio','Km','Por km'],tip,'')}</div>
+ <div class=cd><h3>Origem dos clientes</h3>${tbl(['Origem','Clientes','Faturamento','Investido','Retorno'],ori,'Sem serviços.')}</div>
+ <div class=cd><h3>Maiores clientes (Serviços e Horas)</h3>${tbl(['Cliente / Empresa','Tipo','Lançamentos','Km','Faturamento'],top,'Sem dados.')}</div>`}
+
+function charts(){ch.forEach(c=>c.destroy());ch=[];if(!window.Chart)return;
+ const k=calc(),ln=css('--ln'),c1=css('--c1'),c2=css('--c2'),kv=+S.cfg.kmv||0,ms=[],d=new Date();
+ Chart.defaults.color=css('--mu');
+ for(let i=5;i>=0;i--){const x=new Date(d.getFullYear(),d.getMonth()-i,1);ms.push(x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0'))}
+ const all=Object.values(S.s).filter(x=>(x.situacao||x.st)===STS[2]),
+ allH=H.e.map(e=>({...e,d:normD(e.d),i:normT(e.i),o:normT(e.o),vh:+e.vh||0,km:+e.km||0,vk:+e.vk||0})),
+ rev=ms.map(m=>r2(sum(all.filter(x=>normD(x.data).startsWith(m)),'valor')+allH.filter(e=>e.d.startsWith(m)).reduce((s,e)=>s+hcalc(e).t,0))),
+ cst=ms.map(m=>r2(sum(Object.values(S.c).filter(x=>normD(x.data).startsWith(m)),'valor')+sum(all.filter(x=>normD(x.data).startsWith(m)),'km')*kv)),
+ tip={callbacks:{label:c=>(c.dataset.label||c.label)+': '+R(c.raw)}};
+ if($('#g1'))ch.push(new Chart($('#g1'),{type:'bar',data:{labels:ms.map(m=>new Date(m+'-15').toLocaleDateString('pt-BR',{month:'short'})),datasets:[{label:'Faturamento',data:rev,backgroundColor:c1},{label:'Custos',data:cst,backgroundColor:css('--wa')},{label:'Lucro',data:rev.map((v,i)=>r2(v-cst[i])),backgroundColor:css('--ok')}]},options:{maintainAspectRatio:false,scales:{y:{grid:{color:ln},ticks:{callback:v=>R(v)}},x:{grid:{display:false}}},plugins:{tooltip:tip}}}));
+ const lb=[...CAT],vl=CAT.map(c=>sum(k.cu.filter(x=>x.cat===c),'valor'));if(k.kmc){lb.push('Km rodados');vl.push(k.kmc)}
+ const ix=vl.map((v,i)=>i).filter(i=>vl[i]>0);
+ if($('#g2'))ch.push(new Chart($('#g2'),{type:'doughnut',data:{labels:ix.map(i=>lb[i]),datasets:[{data:ix.map(i=>vl[i]),backgroundColor:ix.map(i=>[c1,c2,...pal.slice(2)][i%pal.length]),borderWidth:0}]},options:{maintainAspectRatio:false,plugins:{legend:{position:'right'},tooltip:tip}}}))}
+
+const rowsS=()=>SV().filter(x=>(!ft||x.tipo===ft)&&(!q||((x.cliente||x.cli||'')+' '+(x.servico||x.srv||'')).toLowerCase().includes(q.toLowerCase()))).sort((a,b)=>(b.data||'').localeCompare(a.data||''));
+function bodyS(){const a=rowsS();return a.length?`<p class=mu>${a.length} serviços, ${R(sum(a,'valor'))} cobrados, ${N(sum(a,'km'))} km</p><div class=tw><table><tr><th>Data<th>Cliente<th>Tipo<th>Origem<th class=n>Km<th class=n>Valor<th>Situação<th></tr>${a.map(x=>`<tr><td>${fd(x.data)}<td>${esc(x.cliente||x.cli)}<small>${esc(x.servico||x.srv)}</small><td><span class="b${x.tipo===TIP[1]?' t':''}">${x.tipo}</span><td>${x.origem||x.ori}<td class=n>${N(x.km)} km<td class=n>${R(x.valor)}<td>${x.situacao||x.st}${((x.situacao||x.st)===STS[2])?pg(x):''}<td><button class=g onclick="openS('${x.id}')">Editar</button></tr>`).join('')}</table></div>`:'<p class=em>Nenhum serviço encontrado.</p>'}
+function lsS(){return `<div class=cd><div class=tb><input style="flex:1;min-width:160px" placeholder="Buscar..." value="${esc(q)}" oninput="q=this.value;$('#ls').innerHTML=bodyS()"><select onchange="ft=this.value;$('#ls').innerHTML=bodyS()"><option value="">Todos os tipos${TIP.map(t=>`<option${ft===t?' selected':''}>${t}`).join('')}</select></div><div id=ls>${bodyS()}</div></div>`}
+function lsC(){const a=CU().sort((x,y)=>(y.data||'').localeCompare(x.data||''));
+ return `<div class=cd><p class=mu>${a.length} lançamentos, total de ${R(sum(a,'valor'))}</p>`+(a.length?`<div class=tw><table><tr><th>Data<th>Categoria<th>Descrição<th class=n>Valor<th></tr>${a.map(x=>`<tr><td>${fd(x.data)}<td>${x.cat}<td>${esc(x.descricao||x.desc)}<td class=n>${R(x.valor)}<td><button class=g onclick="openC('${x.id}')">Editar</button></tr>`).join('')}</table></div>`:'<p class=em>Nenhum custo.</p>')+'</div>'}
+
+function modal(t,h,save,id){armed=0;$('#dl').innerHTML=`<h3 style="margin:0 0 14px">${t}</h3><div class=f>${h}</div><div class=ac>${id?`<button class=g id=xd onclick="exc('${id}')">Excluir</button>`:''}<span style="flex:1"></span><button class=g onclick="$('#dl').close()">Cancelar</button><button class=bt onclick="${save}">Salvar</button></div>`;$('#dl').showModal()}
+
+function openS(id){const raw=id?S.s[id]:{data:hoje(),tipo:TIP[0],cliente:'',servico:'',origem:ORI[0],km:'',valor:'',situacao:STS[2],pago:false};
+ const x={...raw,data:normD(raw.data),prazo:normD(raw.prazo),pago:raw.pago===true||raw.pago==='TRUE'||raw.pago==='true'};ed=id||null;
+ modal(id?'Editar serviço':'Novo serviço',fld('Data','f_d',x.data,'date')+sel('Tipo','f_t',TIP,x.tipo)+fld('Cliente','f_c',x.cliente||x.cli,'text',1)+fld('Serviço','f_s',x.servico||x.srv,'text',1)+sel('Origem','f_o',ORI,x.origem||x.ori,1)+fld('Km','f_k',x.km,'number')+fld('Valor (R$)','f_v',x.valor,'number')+sel('Situação','f_st',STS,x.situacao||x.st,1)+`<label class="ck w"><input type=checkbox id=f_p${x.pago?' checked':''}> Pago</label>`+fld('Prazo','f_pz',x.prazo||'','date')+sel('Forma','f_fp',['Não informada',...FP],x.forma||'Não informada'),'saveS()',id)}
+
+async function saveS(){const c=$('#f_c').value.trim();if(!c)return toast('Informe o cliente.');
+const id=ed||'s'+Date.now().toString(36);
+const d={id, data:$('#f_d').value||hoje(), tipo:$('#f_t').value, cliente:c, servico:$('#f_s').value.trim(), origem:$('#f_o').value, km:+$('#f_k').value||0, valor:+$('#f_v').value||0, situacao:$('#f_st').value, pago:$('#f_p').checked, prazo:$('#f_pz').value, forma:$('#f_fp').value==='Não informada'?'':$('#f_fp').value};
+$('#dl').close(); await put('s', id, d);}
+
+function openC(id){const raw=id?S.c[id]:{data:hoje(),cat:CAT[0],descricao:'',valor:''};
+ const x={...raw,data:normD(raw.data)};ed=id||null;
+ modal(id?'Editar custo':'Novo custo',fld('Data','f_d',x.data,'date')+sel('Categoria','f_k',CAT,x.cat)+fld('Descrição','f_s',x.descricao||x.desc,'text',1)+fld('Valor (R$)','f_v',x.valor,'number',1),'saveC()',id)}
+
+async function saveC(){const v=+$('#f_v').value;if(!v)return toast('Informe o valor.');
+const id=ed||'c'+Date.now().toString(36);
+const d={id, data:$('#f_d').value||hoje(), cat:$('#f_k').value, descricao:$('#f_s').value.trim(), valor:v};
+$('#dl').close(); await put('c', id, d);}
+
+async function exc(id){const b=$('#xd');if(!armed){armed=1;b.textContent='Confirmar';b.classList.add('red');return}await rm('sc', id);$('#dl').close();}
+
+function toggleTheme(){document.documentElement.classList.toggle('dark')}
+
+async function xl(){
+ try{
+  const sv=Object.values(S.s),cu=Object.values(S.c),ho=H.e,em=H.c,wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sv),'Servicos');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(cu),'Custos');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(ho),'Horas');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(em),'Empresas');
+  XLSX.writeFile(wb, 'gestao.xlsx');
+  toast('Exportado!');
+ }catch(e){toast('Erro ao exportar.');}
+}
+
+function cfg(){return `<div class=cd><h3>Configurações e Sincronização</h3><p class=mu>Conectado ao Google Sheets via Apps Script. Clique abaixo para forçar atualização entre PC e celular.</p><button class=bt onclick="init()">Atualizar dados da planilha</button></div>`}
+
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+let dp;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;if($('#pwa-install-banner'))$('#pwa-install-banner').classList.remove('hidden')});
+document.addEventListener('DOMContentLoaded',()=>{
+  const bi=$('#btn-install');
+  if(bi)bi.addEventListener('click',async()=>{if(dp){dp.prompt();dp=null;if($('#pwa-install-banner'))$('#pwa-install-banner').classList.add('hidden')}});
+});
+
+init();
+</script>
+</body>
+</html>
