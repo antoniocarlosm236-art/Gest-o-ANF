@@ -1049,29 +1049,3 @@ init();
 </script>
 </body>
 </html>
-```[cite: 6]
-
-### Como confirmar que tudo ficou no ponto após salvar no GitHub:
-
-<Steps>
-  <Step subtitle="GitHub Pages" title="Salvar o index.html e aguardar atualização">
-    Cole o código acima no arquivo `index.html` do repositório `Gest-o-ANF`, faça o commit e aguarde cerca de 1 minuto para o site atualizar.
-    *Verification:* A URL `antoniocarlosm236-art.github.io/Gest-o-ANF/` carrega sem tela branca e mostra o cabeçalho da ANF.
-  </Step>
-
-  <Step subtitle="Identificação" title="Testar a tela de nome ao abrir">
-    Abra o app no navegador ou no PWA: ele deve exibir a caixa pedindo o nome de quem está lançando (e permitir trocar depois tocando no botão de usuário no topo).
-    *Verification:* Ao informar o nome e entrar, o nome aparece no topo e fica salvo nos próximos lançamentos.
-  </Step>
-
-  <Step subtitle="Sincronização" title="Testar um lançamento com o novo endereço /exec">
-    Cadastre ou edite um lançamento de custo, serviço ou hora e verifique se o aviso de sincronização aparece e se os dados (incluindo o nome do usuário) chegam na planilha do Google Sheets.
-    *Verification:* A linha aparece na aba correspondente da planilha com os campos preenchidos e o nome do responsável na coluna `usuario`.
-  </Step>
-</Steps>
-
-<ElicitationsGroup message="Como ficou depois de colar esse código final?">
-  <Elicitation label="Tudo funcionando perfeitamente" query="Colei o código final, abriu pedindo o nome e sincronizou certinho com a planilha."/>
-  <Elicitation label="Erro ao sincronizar" query="Mesmo com o novo endereço /exec, ainda aparece erro ao sincronizar com a planilha."/>
-  <Elicitation label="Ajuste no orçamento ou login" query="Quero fazer mais algum ajuste na tela de login, notificações ou no modelo de orçamento."/>
-</ElicitationsGroup>
