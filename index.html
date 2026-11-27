@@ -469,16 +469,30 @@ L.forEach(e=>{const x=hcalc(e);T.m+=x.m;T.h+=x.h;T.l+=x.l;T.t+=x.t;if(e.pago)T.p
 HT=L.length?[(c.ct?'Olá, '+c.ct+'!':''),'*ANF instalações elétricas*','Relação de horas – '+c.n,'Período: '+(a?fd(a):'—')+' a '+(b?fd(b):'—'),'',...L.map(e=>{const x=hcalc(e);return hdm(e.d)+': '+e.i+' às '+e.o+' ('+hh(x.m)+') = '+R(x.h)+(x.l?' + logística '+hkm(e.km)+' km = '+R(x.l):'')}),'','Horas trabalhadas: '+hh(T.m)+' ('+R(T.h)+')','Logística: '+R(T.l),'*Total: '+R(T.t)+'*'].filter((v,i)=>i||v).join(NL):'';
 let z=(c.z||'').replace(/[^0-9]/g,'').replace(/^0+/,'');if(z&&z.length<=11)z='55'+z;
 HW='https://wa.me/'+z+'?text='+encodeURIComponent(HT).replace(/'/g,'%27');
-return hresumo()+`<div class=cd><div class=f><label class=w>Empresa<select id=h_re>${hopt(c.id)}</select></label>`+fld('De','h_de',a,'date')+fld('Até','h_ate',b,'date')+`</div></div><div class=cd><h3>Relação de horas</h3>`+tbl(['Data','Horário','Horas','Valor das horas','Logística','Recebimento','Total',''],L.map(e=>{const x=hcalc(e);return tr(fd(e.d)+(e.usuario?`<small>Por: ${esc(e.usuario)}</small>`:''),e.i+' às '+e.o,hh(x.m),R(x.h),x.l?R(x.l)+`<small>${hkm(e.km)} km</small>`:'—',pg({...e,valor:x.t}),`<b>${R(x.t)}</b>`,`<button class=g data-a=dup data-i="${esc(e.id)}">Duplicar</button> <button class=g data-a=ed data-i="${esc(e.id)}">Editar</button> <button class=g data-a=del data-i="${esc(e.id)}">Apagar</button>`)}),'Nenhum lançamento neste período.')+(L.length?`<div class=sm style='margin-top:12px'>${hrows(T)}<div><span>Já pago</span><span class="b ok">${R(T.pago)}</span></div><div><span>Previsto / A receber</span><span class="b wa">${R(T.rec)}</span></div></div><div class=tb style='margin-top:12px'><a class=wz target=_blank rel=noopener href='${HW}'>Enviar no WhatsApp</a><button class=g data-a=copy>Copiar texto</button></div><pre class=rt>${esc(HT)}</pre>`:'')+`</div>`}
+return hresumo()+`<div class=cd><div class=f><label class=w>Empresa<select id=h_re>${hopt(c.id)}</select></label>`+fld('De','h_de',a,'date')+fld('Até','h_ate',b,'date')+`</div></div><div class=cd><h3>Relação de horas – ${esc(c.n)}</h3>`+tbl(['Data','Horário','Horas','Valor das horas','Logística','Recebimento','Total',''],L.map(e=>{const x=hcalc(e);return tr(fd(e.d)+(e.usuario?`<small>Por: ${esc(e.usuario)}</small>`:''),e.i+' às '+e.o,hh(x.m),R(x.h),x.l?R(x.l)+`<small>${hkm(e.km)} km</small>`:'—',pg({...e,valor:x.t}),`<b>${R(x.t)}</b>`,`<button class=g data-a=dup data-i="${esc(e.id)}">Duplicar</button> <button class=g data-a=ed data-i="${esc(e.id)}">Editar</button> <button class=g data-a=del data-i="${esc(e.id)}">Apagar</button>`)}),'Nenhum lançamento neste período.')+(L.length?`<div class=sm style='margin-top:12px'>${hrows(T)}<div><span>Já pago</span><span class="b ok">${R(T.pago)}</span></div><div><span>Previsto / A receber</span><span class="b wa">${R(T.rec)}</span></div></div><div class=tb style='margin-top:12px'><a class=wz target=_blank rel=noopener href='${HW}'>Enviar no WhatsApp</a><button class=g data-a=copy>Copiar texto</button></div><pre class=rt>${esc(HT)}</pre>`:'')+`</div>`}
 
 function hemp(){
 const e=!!hcid;
-return `<div class=cd><h3>${e?'Editar empresa':'Nova empresa'}</h3><div class=f>`+fld('Empresa','h_n',hg('n',''),'text',1)+fld('Nome do contato','h_ct',hg('ct',''))+fld('WhatsApp (com DDD)','h_z',hg('z',''),'tel')+fld('Valor da hora (R$)','h_cvh',hg('cvh',''),'number')+fld('Valor do km (R$)','h_cvk',hg('cvk',''),'number')+`</div><div class=ac><span style='flex:1'></span>${e?`<button class=g data-a=ccancel>Cancelar edição</button>`:''}<button class=bt data-a=csave>${e?'Salvar alterações':'Salvar empresa'}</button></div></div><div class=cd><h3>Empresas cadastradas</h3>`+tbl(['Empresa','WhatsApp','Hora','Km',''],H.c.map(c=>tr(esc(c.n)+(c.ct?`<small>${esc(c.ct)}</small>`:'')+(c.usuario?`<small>Por: ${esc(c.usuario)}</small>`:''),esc(c.z||'—'),R(c.vh),R(c.vk),`<button class=g data-a=ced data-i="${esc(c.id)}">Editar</button> <button class=g data-a=cdel data-i="${esc(c.id)}">Apagar</button>`)),'Nenhuma empresa cadastrada ainda.')+`</div>`}
+return `<div class=cd><h3>${e?'Editar empresa':'Nova empresa'}</h3><div class=f>`+fld('Empresa','h_n',hg('n',''),'text',1)+fld('Nome do contato','h_ct',hg('ct',''))+fld('WhatsApp (com DDD)','h_z',hg('z',''),'tel')+fld('Valor da hora (R$)','h_cvh',hg('cvh',''),'number')+fld('Valor do km (R$)','h_cvk',hg('cvk',''),'number')+`</div><div class=ac><span style='flex:1'></span>${e?`<button class=g data-a=ccancel>Cancelar edição</button>`:''}<button class=bt data-a=csave>${e?'Salvar alterações':'Salvar empresa'}</button></div></div><div class=cd><h3>Empresas cadastradas (toque na empresa para ver a relação)</h3>`+tbl(['Empresa','WhatsApp','Hora','Km',''],H.c.map(c=>{
+  const lancs=H.e.filter(x=>String(x.c)===String(c.id));
+  const mins=lancs.reduce((s,x)=>s+hmin(x.i,x.o),0);
+  const tot=lancs.reduce((s,x)=>s+hcalc(x).t,0);
+  return tr(
+    `<button type=button class=g style="border:0;padding:0;text-align:left;font-weight:700;color:var(--c1)" data-a=verrel data-i="${esc(c.id)}">${esc(c.n)}</button>`+
+    (c.ct?`<small>Contato: ${esc(c.ct)}</small>`:'')+
+    `<small>${lancs.length} lanç. • ${hh(mins)} • Total: ${R(tot)}${c.usuario?' • Por: '+esc(c.usuario):''}</small>`,
+    esc(c.z||'—'),
+    R(c.vh),
+    R(c.vk),
+    `<button class=bt style="padding:5px 10px;font-size:12px" data-a=verrel data-i="${esc(c.id)}">Relação</button> <button class=g data-a=ced data-i="${esc(c.id)}">Editar</button> <button class=g data-a=cdel data-i="${esc(c.id)}">Apagar</button>`
+  );
+}),'Nenhuma empresa cadastrada ainda.')+`</div>`}
 
 const hrv=()=>`<div class=sn>${[['lan','Lançar'],['rel','Relação'],['emp','Empresas']].map(([k,l])=>`<button class='g${hv===k?' on':''}' data-a=nav data-i=${k}>${l}</button>`).join('')}</div>`+(hv==='lan'?hlan():hv==='rel'?hrel():hemp());
 
 async function hact(b){const a=b.dataset.a,id=b.dataset.i;
 if(a==='nav'){hv=id;render();return}
+if(a==='verrel'){HF.re=id;hv='rel';render();scrollTo(0,0);return}
 if(a==='copy'){try{await navigator.clipboard.writeText(HT);toast('Texto copiado.')}catch(e){}return}
 if(a==='cancel'){hid=null;hclr('d','vh','vk','i','o','km','pago','prazo','forma','parcelas');render();return}
 if(a==='ccancel'){hcid=null;hclr('n','ct','z','cvh','cvk');render();return}
@@ -980,3 +994,77 @@ function bodyS(){const a=rowsS();return a.length?`<p class=mu>${a.length} servi�
 function lsS(){return `<div class=cd><div class=tb><input style="flex:1;min-width:160px" placeholder="Buscar..." value="${esc(q)}" oninput="q=this.value;$('#ls').innerHTML=bodyS()"><select onchange="ft=this.value;$('#ls').innerHTML=bodyS()"><option value="">Todos os tipos${TIP.map(t=>`<option${ft===t?' selected':''}>${t}`).join('')}</select></div><div id=ls>${bodyS()}</div></div>`}
 function lsC(){const a=CU().sort((x,y)=>(y.data||'').localeCompare(x.data||''));
  const pPago=sum(a.filter(x=>x.pago),'valor'),pAPagar=sum(a.filter(x=>!x.pago),'valor');
+ return `<div class=cd><p class=mu>${a.length} lançamentos • Total: ${R(sum(a,'valor'))} • Pago: ${R(pPago)} • A pagar: ${R(pAPagar)}</p>`+(a.length?`<div class=tw><table><tr><th>Data<th>Categoria / Descrição<th>Pagamento<th class=n>Valor<th></tr>${a.map(x=>`<tr><td>${fd(x.data)}${x.usuario?`<small>Por: ${esc(x.usuario)}</small>`:''}<td>${esc(x.cat)}<small>${esc(x.descricao||x.desc||'')}</small><td>${pgCusto(x)}<td class=n>${R(x.valor)}<td><button class=g onclick="openC('${x.id}')">Editar</button></tr>`).join('')}</table></div>`:'<p class=em>Nenhum custo.</p>')+'</div>'}
+
+function modal(t,h,save,id){armed=0;$('#dl').innerHTML=`<h3 style="margin:0 0 14px">${t}</h3><div class=f>${h}</div><div class=ac>${id?`<button class=g id=xd onclick="exc('${id}')">Excluir</button>`:''}<span style="flex:1"></span><button class=g onclick="$('#dl').close()">Cancelar</button><button class=bt onclick="${save}">Salvar</button></div>`;$('#dl').showModal()}
+
+function openS(id){const raw=id?S.s[id]:{data:hoje(),tipo:TIP[0],cliente:'',servico:'',origem:ORI[0],km:'',valor:'',situacao:STS[2],pago:false,parcelas:1};
+ const x={...raw,data:normD(raw.data),prazo:normD(raw.prazo),pago:isPaid(raw.pago),parcelas:(+raw.parcelas||1)+'x'};ed=id||null;
+ modal(id?'Editar serviço':'Novo serviço',fld('Data','f_d',x.data,'date')+sel('Tipo','f_t',TIP,x.tipo)+fld('Cliente','f_c',x.cliente||x.cli,'text',1)+fld('Serviço','f_s',x.servico||x.srv,'text',1)+sel('Origem','f_o',ORI,x.origem||x.ori,1)+fld('Km','f_k',x.km,'number')+fld('Valor (R$)','f_v',x.valor,'number')+sel('Situação','f_st',STS,x.situacao||x.st,1)+`<label class="ck w"><input type=checkbox id=f_p${x.pago?' checked':''}> Pago / Recebido</label>`+fld('Previsão de pagamento','f_pz',x.prazo||'','date')+sel('Meio de pagamento','f_fp',['Não informada',...FP],x.forma||'Não informada')+sel('Parcelas (Cartão)','f_pc',PARC,x.parcelas),'saveS()',id)}
+
+async function saveS(){const c=$('#f_c').value.trim();if(!c)return toast('Informe o cliente.');
+const id=ed||'s'+Date.now().toString(36);
+const d={id, data:$('#f_d').value||hoje(), tipo:$('#f_t').value, cliente:c, servico:$('#f_s').value.trim(), origem:$('#f_o').value, km:+$('#f_k').value||0, valor:+$('#f_v').value||0, situacao:$('#f_st').value, pago:$('#f_p').checked, prazo:$('#f_pz').value, forma:$('#f_fp').value==='Não informada'?'':$('#f_fp').value, parcelas:+(String($('#f_pc').value).replace('x',''))||1, usuario:usuarioAtual};
+$('#dl').close(); await put('s', id, d);}
+
+function openC(id){const raw=id?S.c[id]:{data:hoje(),cat:CAT[0],descricao:'',valor:'',pago:true,prazo:'',forma:'Pix',parcelas:1};
+ const x={...raw,data:normD(raw.data),prazo:normD(raw.prazo),pago:isPaid(raw.pago),parcelas:(+raw.parcelas||1)+'x'};ed=id||null;
+ modal(id?'Editar custo':'Novo custo',fld('Data','f_d',x.data,'date')+sel('Categoria','f_k',CAT,x.cat)+fld('Descrição','f_s',x.descricao||x.desc,'text',1)+fld('Valor (R$)','f_v',x.valor,'number')+`<label class="ck"><input type=checkbox id=f_p${x.pago?' checked':''}> Já está pago</label>`+fld('Vencimento / Previsão','f_pz',x.prazo||'','date')+sel('Meio de pagamento','f_fp',['Não informada',...FP],x.forma||'Não informada')+sel('Parcelas (Cartão)','f_pc',PARC,x.parcelas),'saveC()',id)}
+
+async function saveC(){const v=+$('#f_v').value;if(!v)return toast('Informe o valor.');
+const id=ed||'c'+Date.now().toString(36);
+const d={id, data:$('#f_d').value||hoje(), cat:$('#f_k').value, descricao:$('#f_s').value.trim(), valor:v, pago:$('#f_p').checked, prazo:$('#f_pz').value, forma:$('#f_fp').value==='Não informada'?'':$('#f_fp').value, parcelas:+(String($('#f_pc').value).replace('x',''))||1, usuario:usuarioAtual};
+$('#dl').close(); await put('c', id, d);}
+
+async function exc(id){const b=$('#xd');if(!armed){armed=1;b.textContent='Confirmar';b.classList.add('red');return}await rm(tab==='cus'?'c':tab==='orc'?'o':'sc', id);$('#dl').close();}
+
+function toggleTheme(){document.documentElement.classList.toggle('dark')}
+
+async function xl(){
+ try{
+  const sv=Object.values(S.s),cu=Object.values(S.c),ho=H.e,em=H.c,or=Object.values(S.o),wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(sv),'Servicos');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(cu),'Custos');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(ho),'Horas');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(em),'Empresas');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(or),'Orcamentos');
+  XLSX.writeFile(wb, 'gestao.xlsx');
+  toast('Exportado!');
+ }catch(e){toast('Erro ao exportar.');}
+}
+
+async function pushAllToCloud() {
+  toast('Enviando tudo para a planilha...');
+  let count = 0;
+  for (const [id, item] of Object.entries(S.s)) { await syncPost('Servicos', 'save', { id, ...item }); count++; }
+  for (const [id, item] of Object.entries(S.c)) { await syncPost('Custos', 'save', { id, ...item }); count++; }
+  for (const [id, item] of Object.entries(S.o)) { await syncPost('Orcamentos', 'save', { id, ...item }); count++; }
+  for (const item of H.c) { await syncPost('Empresas', 'save', item); count++; }
+  for (const item of H.e) { await syncPost('Horas', 'save', item); count++; }
+  toast(`${count} registros enviados para a planilha!`);
+}
+
+function cfg(){
+  return `<div class=cd><h3>Configurações, Usuário e Sincronização</h3>
+  <p class=mu>Usuário ativo neste aparelho: <b>${esc(usuarioAtual||'Não definido')}</b>. Todos os lançamentos gravam o nome do responsável na planilha.</p>
+  <div class=tb>
+    <button class=bt onclick="abrirTrocaUsuario()">👤 Trocar usuário</button>
+    <button class=g onclick="pedirPermissaoNotif()">🔔 Ativar notificações neste aparelho</button>
+    <button class=g onclick="init()">1. Baixar dados da planilha</button>
+    <button class=g onclick="pushAllToCloud()">2. Enviar dados deste aparelho para a planilha</button>
+  </div></div>`;
+}
+
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+let dp;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;if($('#pwa-install-banner'))$('#pwa-install-banner').classList.remove('hidden')});
+document.addEventListener('DOMContentLoaded',()=>{
+  const bi=$('#btn-install');
+  if(bi)bi.addEventListener('click',async()=>{if(dp){dp.prompt();dp=null;if($('#pwa-install-banner'))$('#pwa-install-banner').classList.add('hidden')}});
+});
+
+verificarLogin();
+init();
+</script>
+</body>
+</html>
